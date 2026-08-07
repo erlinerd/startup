@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-electron
+.next
+.turbo
+out
+build
+release
+coverage
+pnpm-lock.yaml
+*.woff
+*.woff2
+packages/db/migrations

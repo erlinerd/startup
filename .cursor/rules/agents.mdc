@@ -1,0 +1,26 @@
+---
+description: Points Cursor at AGENTS.md, the operational manual for this repo. AGENTS.md has the authoritative guidance — always defer to it.
+globs:
+  - "**"
+alwaysApply: true
+---
+
+# Read AGENTS.md first
+
+This repository ships an operational manual at the repo root: **`AGENTS.md`**.
+
+Cursor does not auto-load it, so treat this rule as the pointer. Open
+`AGENTS.md` and follow it for all work in this repo — it is the authoritative
+source of truth for:
+
+- **Non-negotiables** (e.g. everything is TypeScript including configs;
+  `@repo/ui` ships raw `.tsx` source with no build step; design tokens are
+  imported via relative path; env validation is lazy/factory-based).
+- **Commands** (`pnpm dev|lint|check-types|test|build`, always `pnpm`).
+- **Architecture map** (apps/{landing,desktop,server} → packages/{ui,db}).
+- **Common pitfalls** (Electron `.js` vs `.mjs` outputs, CORS `null` origin,
+  migrations must be pushed before deploy, etc.).
+- **Verification** — `pnpm lint && pnpm check-types` then
+  `pnpm test && pnpm build` must all pass before finishing.
+
+When in doubt, defer to `AGENTS.md` and match the surrounding code's patterns.

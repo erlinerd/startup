@@ -1,0 +1,45 @@
+# electron-builder config. `main` matches the vite-plugin-electron output
+# (ESM content emitted as `dist-electron/main.js`, preload as `preload.mjs`).
+#
+# Icons live in build/ (icon.png tracked; icon.icns generated from public/favicon.png via
+# `pnpm --filter desktop icons:generate`).
+appId: com.startup.desktop
+productName: Startup
+directories:
+  output: release
+  buildResources: build
+files:
+  - dist/**/*
+  - dist-electron/**/*
+extraMetadata:
+  main: dist-electron/main.js
+
+mac:
+  category: public.app-category.productivity
+  icon: build/icon.icns
+  target:
+    - dmg
+    - zip
+
+win:
+  # PNG source; electron-builder converts it to .ico at package time.
+  icon: build/icon.png
+  target:
+    - nsis
+
+linux:
+  icon: build/icon.png
+  target:
+    - AppImage
+  category: Utility
+
+# Architectures are passed via CLI (--universal for mac, --x64 --arm64 for
+# win) — electron-builder 26 no longer accepts `arch` in the config file.
+
+# Auto-update via GitHub Releases. electron-updater (electron/main.ts) checks
+# this feed at startup; it no-ops when no release exists yet. For a fork,
+# point owner/repo at your own repository.
+publish:
+  provider: github
+  owner: erlinerd
+  repo: startup

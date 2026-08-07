@@ -1,0 +1,53 @@
+/* Pull in the shared shadcn/Tailwind design system from @repo/ui,
+   and scan the shared package's source so Tailwind picks up its classes.
+   Relative path so PostCSS (@tailwindcss/postcss) resolves it reliably. */
+@import '../../../packages/ui/src/styles/globals.css';
+
+@source '../../../packages/ui/src';
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100svh;
+}
+
+/*
+ * Landing-page editorial theme.
+ * Anchored to the hand-drawn line-art mark (ink + vermilion seal): a paper
+ * feel, warm ink (not pure black), and a single brush-stroke red. Scoped to
+ * `.landing` so the shadcn defaults used by desktop/ui stay untouched.
+ */
+.landing {
+  --paper: oklch(0.98 0.008 85);
+  --ink: oklch(0.2 0.012 85);
+  --graphite: oklch(0.46 0.012 85);
+  --vermilion: oklch(0.6 0.17 28);
+  --vermilion-soft: oklch(0.6 0.17 28 / 0.1);
+  --rule: oklch(0.88 0.012 85);
+
+  background: var(--paper);
+  color: var(--ink);
+  font-feature-settings: 'kern', 'liga', 'calt';
+}
+
+.landing .font-display {
+  font-family: var(--font-display), Georgia, 'Times New Roman', serif;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing .seal-pop {
+    animation: seal-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes seal-in {
+    from {
+      opacity: 0;
+      transform: rotate(-24deg) scale(0.4);
+    }
+    to {
+      opacity: 1;
+      transform: rotate(-10deg) scale(1);
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "name": "landing",
+  "version": "0.0.1",
+  "description": "Marketing/landing site — Next.js 16 (App Router) consuming the shared @repo/ui design system.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 15000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "oxlint",
+    "check-types": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.7.1",
+    "@repo/ui": "workspace:*",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@t3-oss/env-nextjs": "^0.13.11",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "hono": "^4.13.0",
+    "lucide-react": "^1.29.0",
+    "next": "16.3.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-hook-form": "^7.84.0",
+    "sonner": "^2.0.7",
+    "tailwindcss": "^4.3.3",
+    "tailwind-merge": "^3.6.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^24.13.3",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "typescript": "7.0.2"
+  },
+  "license": "MIT"
+}

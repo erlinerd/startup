@@ -1,0 +1,65 @@
+{
+  "name": "startup",
+  "version": "0.0.1",
+  "private": true,
+  "description": "A batteries-included, full-stack monorepo starter — landing site, desktop app, and API server in one codebase.",
+  "keywords": [
+    "monorepo",
+    "turborepo",
+    "starter",
+    "boilerplate",
+    "template",
+    "nextjs",
+    "electron",
+    "hono",
+    "drizzle",
+    "shadcn-ui",
+    "tailwindcss",
+    "typescript"
+  ],
+  "homepage": "https://github.com/erlinerd/startup#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erlinerd/startup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/erlinerd/startup/issues"
+  },
+  "author": "erlinerd <hello@erlinerd.com> (https://erlinerd.com)",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "format": "prettier --write \"**/*.{ts,tsx,js,cjs,mjs,jsx,json,css,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,cjs,mjs,jsx,json,css,md,yml,yaml}\"",
+    "check-types": "turbo run check-types",
+    "commitlint": "commitlint",
+    "prepare": "husky || true",
+    "changeset": "changeset",
+    "version:packages": "changeset version"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.1",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@vitest/coverage-v8": "^4.1.10",
+    "husky": "^9.1.7",
+    "jsdom": "^30.0.1",
+    "lint-staged": "^17.3.0",
+    "oxlint": "^1.77.0",
+    "prettier": "^3.7.4",
+    "turbo": "^2.10.8",
+    "typescript": "7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=22.22.2"
+  }
+}

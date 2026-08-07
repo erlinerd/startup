@@ -1,0 +1,260 @@
+name: CI/CD
+
+# One workflow, three lanes, one trigger per event (GitHub never fires a
+# workflow twice for the same push):
+#   - push to main      → CI checks + changesets version PR
+#   - push a v* tag     → build installers + publish GitHub Release (CD)
+#   - pull_request      → CI checks only
+#   - workflow_dispatch → CI checks only (manual)
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Lane 1: quality gates ───────────────────────────────────────────────
+  ci:
+    name: lint / types / test / build
+    if: github.event_name != 'push' || startsWith(github.ref, 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      # Don't install commit hooks or the ~150MB electron binary in CI.
+      HUSKY: '0'
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        # Reads `packageManager` from package.json (single source of truth).
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm exec turbo run lint
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Type check
+        run: pnpm exec turbo run check-types
+
+      - name: Test
+        run: pnpm exec turbo run test
+
+      # Same tests with coverage enabled — enforces the per-package thresholds
+      # in each vitest.config.ts (bare `vitest run` skips them).
+      - name: Test with coverage
+        run: pnpm exec turbo run test:coverage
+
+      - name: Build
+        run: pnpm exec turbo run build
+
+  # ── Lane 2: versioning via Changesets (push to main only) ───────────────
+  # Opens/updates the "Version Packages" PR; merging it bumps versions and
+  # CHANGELOGs. Tagging is manual: `git tag v<version> && git push origin
+  # v<version>` — that tag push is what triggers the CD lane below.
+  changesets:
+    name: open version PR
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write # commit version bumps onto the version PR branch
+      pull-requests: write # open/update the "Version Packages" PR
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so changesets can compute the diff since last release.
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        # Reads `packageManager` from package.json (single source of truth).
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Create or update version PR
+        uses: changesets/action@v1
+        with:
+          # `version` only — no `publish` (all packages are private). When
+          # pending changesets exist this opens the "Version Packages" PR;
+          # when none exist it is a no-op.
+          version: pnpm version:packages
+          commit: 'chore(release): version packages'
+          title: 'chore(release): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── Lane 3: CD — build + publish (v* tags only) ─────────────────────────
+  # Create the GitHub Release first so builds can upload into it. Notes link
+  # to the changesets-generated CHANGELOG instead of inlining it.
+  create-release:
+    name: create release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists — reusing it."
+            exit 0
+          fi
+          # Create as DRAFT: electron-builder's onTagOrDraft publisher only
+          # uploads to a draft (it refuses an existing public release), and
+          # it generates the latest.yml update feed + blockmaps. The publish
+          # job flips it public after all platforms are done.
+          gh release create "$VERSION" \
+            --draft \
+            --title "$VERSION" \
+            --notes "Please refer to [CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/${VERSION}/apps/desktop/CHANGELOG.md) for details." \
+            --verify-tag
+          echo "Created draft release $VERSION."
+
+  # Builds distributable desktop packages for macOS (universal dmg), Windows
+  # (nsis exe), and Linux (AppImage); add code-signing secrets
+  # (CSC_LINK/CSC_KEY_PASSWORD) to publish signed installers.
+  electron-build:
+    name: electron build (${{ matrix.target.name }})
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [create-release]
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: macos
+            runner: macos-latest
+            # Universal dmg: runs on Apple Silicon + Intel.
+            builder: --mac --universal
+            glob: release/*.dmg
+          - name: windows
+            runner: windows-latest
+            # x64 + arm64 installers.
+            builder: --win --x64 --arm64
+            glob: release/*.exe
+          - name: linux
+            runner: ubuntu-latest
+            # AppImage (matches the `linux` target in electron-builder.yml).
+            builder: --linux AppImage
+            glob: release/*.AppImage
+    runs-on: ${{ matrix.target.runner }}
+    permissions:
+      contents: write # upload installers to the GitHub Release
+    env:
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        # Reads `packageManager` from package.json (single source of truth).
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.2
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate app icons from favicon.png
+        # build/ is gitignored (derived artifacts); regenerate here.
+        # macos uses sips/iconutil; windows falls back to the png source
+        # (electron-builder converts it to .ico at package time).
+        run: pnpm --filter desktop icons:generate
+        shell: bash
+
+      - name: Build renderer + electron main/preload
+        run: pnpm --filter desktop build
+
+      - name: Verify tag matches desktop version
+        # A mismatched tag would publish wrong-version installers into a
+        # mislabeled GitHub Release and confuse electron-updater's versioning.
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION="$(node -p "require('./apps/desktop/package.json').version")"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "Tag v$TAG_VERSION does not match desktop version $PKG_VERSION" >&2
+            exit 1
+          fi
+          echo "Tag v$TAG_VERSION matches desktop version — proceeding."
+        shell: bash
+
+      - name: Package (${{ matrix.target.name }})
+        # --publish onTagOrDraft: electron-builder uploads the installer to the
+        # draft release itself and generates latest.yml (the electron-updater
+        # feed) + blockmaps. It refuses to upload when the release is public,
+        # which is why create-release makes a draft.
+        run: pnpm --filter desktop exec electron-builder ${{ matrix.target.builder }} --publish onTagOrDraft
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # electron-builder reads GH_TOKEN (not GITHUB_TOKEN) for publishing;
+          # contents: write on the job grants it.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.target.name }}
+          path: ${{ matrix.target.glob }}
+
+  # After every platform finished uploading, flip the draft release public.
+  publish:
+    name: publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [electron-build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME}"
+          if ! gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION not found — nothing to publish."
+            exit 0
+          fi
+          gh release edit "$VERSION" --draft=false --title "$VERSION"
+          echo "Published $VERSION."

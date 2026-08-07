@@ -1,0 +1,20 @@
+# Build outputs
+dist
+dist-electron
+.next
+out
+build
+
+# Tooling caches
+.turbo
+.trellis
+.zcode
+coverage
+
+# Dependencies
+node_modules
+pnpm-lock.yaml
+
+# Generated
+packages/db/migrations
+apps/landing/next-env.d.ts

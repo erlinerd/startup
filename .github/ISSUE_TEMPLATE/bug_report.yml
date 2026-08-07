@@ -1,0 +1,50 @@
+name: Bug report
+description: Something doesn't work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: workspace
+    attributes:
+      label: Which workspace?
+      description: landing / desktop / server / @repo/ui / @repo/db
+      placeholder: desktop
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us what you expected to happen.
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Exact commands you ran (e.g. pnpm dev --filter desktop)
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What commit / tag are you on? (git log --oneline -1)
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS + Node version (node -v)
+      placeholder: macOS 15, Node 22.18
+    validations:
+      required: true

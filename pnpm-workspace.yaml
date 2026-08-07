@@ -1,0 +1,11 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+overrides:
+  # undici >= 7.29.0 fixes a known HIGH advisory (cross-user info disclosure).
+  # Keep the floor explicit even though the lockfile already resolves above it.
+  undici: '^7.29.0'
+  # NOTE: esbuild@0.18.20 (via drizzle-kit's deprecated @esbuild-kit toolchain)
+  # still reports GHSA-67mh-4wv8-2f99. pnpm 9 overrides do not rewrite esbuild,
+  # and drizzle-kit is already at latest — wait for upstream to drop
+  # @esbuild-kit. Dev-tooling only; not in production bundles.
