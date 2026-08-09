@@ -83,7 +83,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${GITHUB_REF_NAME}"
-          if gh release view "$VERSION" >/dev/null 2>&1; then
+          # REST API, not `gh release view`: gh can't resolve DRAFT releases
+          # by tag name, so an existing draft would be missed and the create
+          # below would fail with "already exists" on re-runs.
+          EXISTING="$(gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" \
+            --jq ".[] | select(.tag_name==\"${VERSION}\") | .id")"
+          if [ -n "$EXISTING" ]; then
             echo "Release $VERSION already exists — reusing it."
             exit 0
           fi
@@ -204,9 +209,15 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${GITHUB_REF_NAME}"
-          if ! gh release view "$VERSION" >/dev/null 2>&1; then
+          # REST API, not `gh release view/edit`: gh can't resolve DRAFT
+          # releases by tag name, so the draft created above would look
+          # "not found" and silently stay a draft.
+          RELEASE_ID="$(gh api "repos/${GITHUB_REPOSITORY}/releases?per_page=100" \
+            --jq ".[] | select(.tag_name==\"${VERSION}\") | .id")"
+          if [ -z "$RELEASE_ID" ]; then
             echo "Release $VERSION not found — nothing to publish."
             exit 0
           fi
-          gh release edit "$VERSION" --draft=false --title "$VERSION"
+          gh api -X PATCH "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}" \
+            -f draft=false -f name="$VERSION"
           echo "Published $VERSION."
