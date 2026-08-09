@@ -1,7 +1,7 @@
 {
   "name": "desktop",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Electron + Vite + React desktop app — renderer shares the @repo/ui design system with the landing site.",
   "type": "module",
   "main": "dist-electron/main.js",
