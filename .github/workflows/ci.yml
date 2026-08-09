@@ -1,8 +1,8 @@
-name: CI/CD
+name: CI / Release
 
-# One workflow, three lanes, one trigger per event (GitHub never fires a
+# One workflow, two lanes, one trigger per event (GitHub never fires a
 # workflow twice for the same push):
-#   - push to main      → CI checks + changesets version PR
+#   - push to main      → CI checks
 #   - push a v* tag     → build installers + publish GitHub Release (CD)
 #   - pull_request      → CI checks only
 #   - workflow_dispatch → CI checks only (manual)
@@ -31,16 +31,16 @@ jobs:
       HUSKY: '0'
       ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup pnpm
         # Reads `packageManager` from package.json (single source of truth).
         uses: pnpm/action-setup@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22.22.2
+          node-version-file: '.nvmrc'
           cache: pnpm
 
       - name: Install dependencies
@@ -55,63 +55,19 @@ jobs:
       - name: Type check
         run: pnpm exec turbo run check-types
 
-      - name: Test
-        run: pnpm exec turbo run test
-
-      # Same tests with coverage enabled — enforces the per-package thresholds
-      # in each vitest.config.ts (bare `vitest run` skips them).
+      # Coverage run doubles as the test suite and enforces the per-package
+      # thresholds in each vitest.config.ts (bare `vitest run` skips them).
       - name: Test with coverage
         run: pnpm exec turbo run test:coverage
 
       - name: Build
         run: pnpm exec turbo run build
 
-  # ── Lane 2: versioning via Changesets (push to main only) ───────────────
-  # Opens/updates the "Version Packages" PR; merging it bumps versions and
-  # CHANGELOGs. Tagging is manual: `git tag v<version> && git push origin
-  # v<version>` — that tag push is what triggers the CD lane below.
-  changesets:
-    name: open version PR
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: write # commit version bumps onto the version PR branch
-      pull-requests: write # open/update the "Version Packages" PR
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          # Full history so changesets can compute the diff since last release.
-          fetch-depth: 0
-
-      - name: Setup pnpm
-        # Reads `packageManager` from package.json (single source of truth).
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.22.2
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Create or update version PR
-        uses: changesets/action@v1
-        with:
-          # `version` only — no `publish` (all packages are private). When
-          # pending changesets exist this opens the "Version Packages" PR;
-          # when none exist it is a no-op.
-          version: pnpm version:packages
-          commit: 'chore(release): version packages'
-          title: 'chore(release): version packages'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # ── Lane 3: CD — build + publish (v* tags only) ─────────────────────────
-  # Create the GitHub Release first so builds can upload into it. Notes link
-  # to the changesets-generated CHANGELOG instead of inlining it.
+  # ── Lane 2: CD — build + publish (v* tags only) ─────────────────────────
+  # Versioning is manual: `pnpm changeset` to record changes, then
+  # `pnpm version:packages` to bump versions + CHANGELOGs, commit, and
+  # `git tag v<desktop-version> && git push origin <tag>` — that tag push is
+  # what triggers this lane.
   create-release:
     name: create release
     if: startsWith(github.ref, 'refs/tags/v')
@@ -120,9 +76,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v6
 
       - name: Create GitHub Release
         env:
@@ -177,17 +131,31 @@ jobs:
     env:
       HUSKY: '0'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup pnpm
         # Reads `packageManager` from package.json (single source of truth).
         uses: pnpm/action-setup@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22.22.2
+          node-version-file: '.nvmrc'
           cache: pnpm
+
+      - name: Verify tag matches desktop version
+        # Fail fast, before spending minutes on install + build: a mismatched
+        # tag would publish wrong-version installers into a mislabeled GitHub
+        # Release and confuse electron-updater's versioning.
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION="$(node -p "require('./apps/desktop/package.json').version")"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "Tag v$TAG_VERSION does not match desktop version $PKG_VERSION" >&2
+            exit 1
+          fi
+          echo "Tag v$TAG_VERSION matches desktop version — proceeding."
+        shell: bash
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -202,19 +170,6 @@ jobs:
       - name: Build renderer + electron main/preload
         run: pnpm --filter desktop build
 
-      - name: Verify tag matches desktop version
-        # A mismatched tag would publish wrong-version installers into a
-        # mislabeled GitHub Release and confuse electron-updater's versioning.
-        run: |
-          TAG_VERSION="${GITHUB_REF_NAME#v}"
-          PKG_VERSION="$(node -p "require('./apps/desktop/package.json').version")"
-          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
-            echo "Tag v$TAG_VERSION does not match desktop version $PKG_VERSION" >&2
-            exit 1
-          fi
-          echo "Tag v$TAG_VERSION matches desktop version — proceeding."
-        shell: bash
-
       - name: Package (${{ matrix.target.name }})
         # --publish onTagOrDraft: electron-builder uploads the installer to the
         # draft release itself and generates latest.yml (the electron-updater
@@ -228,7 +183,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: desktop-${{ matrix.target.name }}
           path: ${{ matrix.target.glob }}
@@ -243,10 +198,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
+      # No checkout needed — gh talks to the GitHub API, not the working tree.
       - name: Publish release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
