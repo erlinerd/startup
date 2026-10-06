@@ -19,31 +19,19 @@ export default function Home() {
       id: 'landing',
       name: 'landing',
       tech: d.surfaces.landing.tech,
-      lines: [
-        d.surfaces.landing.tailwind,
-        d.surfaces.landing.hono,
-        d.surfaces.landing.forms,
-      ],
+      body: d.surfaces.landing.body,
     },
     {
       id: 'desktop',
       name: 'desktop',
       tech: d.surfaces.desktop.tech,
-      lines: [
-        d.surfaces.desktop.react,
-        d.surfaces.desktop.platforms,
-        d.surfaces.desktop.updater,
-      ],
+      body: d.surfaces.desktop.body,
     },
     {
       id: 'server',
       name: 'server',
       tech: d.surfaces.server.tech,
-      lines: [
-        d.surfaces.server.ai,
-        d.surfaces.server.db,
-        d.surfaces.server.env,
-      ],
+      body: d.surfaces.server.body,
     },
   ] as const
 
@@ -52,35 +40,6 @@ export default function Home() {
     { name: '@repo/db', body: d.shared.db.body },
   ] as const
 
-  const tooling = [
-    {
-      group: d.tooling.group.monorepo,
-      items: [d.tooling.pnpm, d.tooling.turborepo, d.tooling.changesets],
-    },
-    {
-      group: d.tooling.group.quality,
-      items: [d.tooling.oxlint, d.tooling.prettier, d.tooling.vitest],
-    },
-    {
-      group: d.tooling.group.git,
-      items: [d.tooling.husky, d.tooling.lintstaged, d.tooling.commitlint],
-    },
-    {
-      group: d.tooling.group.cicd,
-      items: [d.tooling.gha, d.tooling.builds, d.tooling.cloudflare],
-    },
-  ] as const
-
-  const tree = `startup
-├── apps/
-│   ├── landing/          Next.js site · port 15000
-│   ├── desktop/          Vite + Electron · port 15100
-│   └── server/           Hono API · port 15200
-├── packages/
-│   ├── ui/               @repo/ui (shadcn registry)
-│   ├── db/               @repo/db (Drizzle + migrations)
-│   └── typescript-config/
-└── turbo.json`
 
   return (
     <div lang={locale} className="landing min-h-svh">
@@ -110,23 +69,14 @@ export default function Home() {
             className="flex items-center gap-4 text-[0.8rem] md:gap-7 md:text-sm"
             style={{ color: 'var(--graphite)' }}
           >
-            <a
-              href="#stack"
-              className="transition-colors hover:text-[var(--ink)]"
-            >
+            <a href="#stack" className="transition-colors hover:text-[var(--ink)]">
               {d.nav.surfaces}
             </a>
             <a
-              href="#structure"
+              href="#quickstart"
               className="transition-colors hover:text-[var(--ink)]"
             >
-              {d.nav.structure}
-            </a>
-            <a
-              href="#ship"
-              className="transition-colors hover:text-[var(--ink)]"
-            >
-              {d.nav.ship}
+              {d.nav.quickstart}
             </a>
           </div>
           <div className="flex items-center gap-1.5">
@@ -246,14 +196,7 @@ export default function Home() {
                     {s.name}
                   </p>
                   <h3 className="mt-2 font-display text-xl">{s.tech}</h3>
-                  <ul
-                    className="mt-4 space-y-1.5 text-sm"
-                    style={{ color: 'var(--graphite)' }}
-                  >
-                    {s.lines.map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
+                  <p className="mt-4 text-sm leading-relaxed" style={{ color: 'var(--graphite)' }}>{s.body}</p>
                 </div>
               </article>
             ))}
@@ -286,209 +229,36 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Structure: the tree, then the commands ── */}
+        {/* ── Quickstart: minimal start path ── */}
         <section
-          id="structure"
+          id="quickstart"
           className="rise border-t py-20 sm:py-24"
           style={{ borderColor: 'var(--rule)' }}
         >
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
             <div className="lg:col-span-7">
               <h2 className="max-w-md font-display text-3xl font-light tracking-tight sm:text-4xl">
-                {d.structure.heading}
+                {d.quickstart.heading}
               </h2>
               <p
                 className="mt-4 max-w-md text-base leading-relaxed"
                 style={{ color: 'var(--graphite)' }}
               >
-                {d.structure.body}
+                {d.quickstart.body}
               </p>
-              <pre
-                className="mt-8 overflow-x-auto rounded-xl p-5 text-[0.75rem] leading-relaxed sm:text-xs"
-                style={{ background: 'var(--slab)', color: 'var(--slab-dim)' }}
-              >
-                <code>{tree}</code>
-              </pre>
-            </div>
-            <div className="lg:col-span-5">
-              <h3
-                className="mb-4 text-[0.7rem] font-semibold uppercase tracking-[0.22em]"
-                style={{ color: 'var(--graphite)' }}
-              >
-                {d.structure.dayZero}
-              </h3>
               <QuickstartCommands />
               <p
                 className="mt-4 text-sm leading-relaxed"
                 style={{ color: 'var(--graphite)' }}
               >
-                {d.structure.note}
+                {d.quickstart.note}
               </p>
             </div>
+            <div className="lg:col-span-5" />
           </div>
         </section>
 
-        {/* ── Tooling: four groups, not a bullet dump ── */}
-        <section
-          className="rise border-t py-20 sm:py-24"
-          style={{ borderColor: 'var(--rule)' }}
-        >
-          <h2 className="max-w-lg font-display text-3xl font-light tracking-tight sm:text-4xl">
-            {d.tooling.heading}
-          </h2>
-          <div className="mt-10 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
-            {tooling.map((group) => (
-              <div key={group.group}>
-                <p
-                  className="mb-4 border-b pb-3 text-[0.7rem] font-semibold uppercase tracking-[0.18em]"
-                  style={{
-                    borderColor: 'var(--rule)',
-                    color: 'var(--vermilion)',
-                  }}
-                >
-                  {group.group}
-                </p>
-                <ul
-                  className="space-y-2 text-sm"
-                  style={{ color: 'var(--graphite)' }}
-                >
-                  {group.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Ship: two steps ── */}
-        <section
-          id="ship"
-          className="rise border-t py-20 sm:py-24"
-          style={{ borderColor: 'var(--rule)' }}
-        >
-          <h2 className="max-w-xl font-display text-3xl font-light tracking-tight sm:text-4xl">
-            {d.ship.heading}
-          </h2>
-          <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <article
-              className="rounded-xl p-6 sm:p-8"
-              style={{
-                background: 'var(--card)',
-                border: '1px solid var(--rule)',
-              }}
-            >
-              <p
-                className="font-mono text-sm"
-                style={{ color: 'var(--vermilion)' }}
-              >
-                git push
-              </p>
-              <h3 className="mt-3 font-display text-xl">{d.ship.ci.title}</h3>
-              <p
-                className="mt-3 text-sm leading-relaxed"
-                style={{ color: 'var(--graphite)' }}
-              >
-                {d.ship.ci.body}
-              </p>
-            </article>
-            <article
-              className="rounded-xl p-6 sm:p-8 md:mt-10"
-              style={{
-                background: 'var(--card)',
-                border: '1px solid var(--rule)',
-              }}
-            >
-              <p
-                className="font-mono text-sm"
-                style={{ color: 'var(--vermilion)' }}
-              >
-                git tag v1.0.0
-              </p>
-              <h3 className="mt-3 font-display text-xl">
-                {d.ship.release.title}
-              </h3>
-              <p
-                className="mt-3 text-sm leading-relaxed"
-                style={{ color: 'var(--graphite)' }}
-              >
-                {d.ship.release.body}
-              </p>
-            </article>
-          </div>
-        </section>
-
-        {/* ── Deploy: this page is the proof ── */}
-        <section
-          className="rise border-t py-20 sm:py-24"
-          style={{ borderColor: 'var(--rule)' }}
-        >
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-8">
-              <p
-                className="mb-5 text-[0.7rem] font-semibold uppercase tracking-[0.22em]"
-                style={{ color: 'var(--vermilion)' }}
-              >
-                {d.deploy.eyebrow}
-              </p>
-              <h2 className="max-w-2xl font-display text-3xl font-light leading-snug tracking-tight sm:text-4xl">
-                {d.deploy.heading}
-              </h2>
-              <p
-                className="mt-5 max-w-xl text-base leading-relaxed"
-                style={{ color: 'var(--graphite)' }}
-              >
-                {d.deploy.bodyLead}{' '}
-                <code
-                  className="rounded px-1.5 py-0.5 font-mono text-[0.85em]"
-                  style={{ background: 'var(--vermilion-soft)' }}
-                >
-                  apps/landing
-                </code>
-                {d.deploy.bodyMid}{' '}
-                <code
-                  className="rounded px-1.5 py-0.5 font-mono text-[0.85em]"
-                  style={{ background: 'var(--vermilion-soft)' }}
-                >
-                  /api
-                </code>{' '}
-                {d.deploy.bodyTail}
-              </p>
-            </div>
-            <aside className="flex items-end lg:col-span-4">
-              <dl
-                className="w-full space-y-4 text-sm"
-                style={{ color: 'var(--graphite)' }}
-              >
-                <div
-                  className="flex justify-between border-b pb-3"
-                  style={{ borderColor: 'var(--rule)' }}
-                >
-                  <dt>{d.deploy.hostingLabel}</dt>
-                  <dd className="font-mono" style={{ color: 'var(--ink)' }}>
-                    {d.deploy.hostingValue}
-                  </dd>
-                </div>
-                <div
-                  className="flex justify-between border-b pb-3"
-                  style={{ borderColor: 'var(--rule)' }}
-                >
-                  <dt>{d.deploy.adapterLabel}</dt>
-                  <dd className="font-mono" style={{ color: 'var(--ink)' }}>
-                    {d.deploy.adapterValue}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt>{d.deploy.triggerLabel}</dt>
-                  <dd className="font-mono" style={{ color: 'var(--ink)' }}>
-                    {d.deploy.triggerValue}
-                  </dd>
-                </div>
-              </dl>
-            </aside>
-          </div>
-        </section>
-
+        {/* ── CTA ── */}
         <FriendlyLink />
 
         {/* ── Final CTA ── */}

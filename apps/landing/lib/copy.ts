@@ -7,6 +7,7 @@ export const en = {
     langToggle: 'Switch to Chinese',
     themeToDark: 'Switch to dark mode',
     themeToLight: 'Switch to light mode',
+    quickstart: 'Quickstart',
   },
   hero: {
     eyebrow: 'Monorepo starter',
@@ -30,6 +31,9 @@ export const en = {
     okLine: '200 in {ms} ms, served by this Worker',
   },
   quickstart: {
+    heading: 'Day zero',
+    body: 'Apps talk to packages through workspace protocols. Nothing is duplicated across the tree, and each app runs on its own port.',
+    note: 'Runs with Node 22 and pnpm 9. The whole stack builds and tests with zero secrets: env keys are optional and validated lazily.',
     copy: 'copy',
     copied: 'copied',
     copyLabel: 'Copy command: {cmd}',
@@ -38,21 +42,15 @@ export const en = {
     heading: 'Three apps, one install',
     landing: {
       tech: 'Next.js 16 · App Router',
-      tailwind: 'Tailwind v4',
-      hono: 'Hono mounted at /api/*',
-      forms: 'react-hook-form + zod',
+      body: 'Shipping-ready site with Tailwind v4, Hono mounted at /api/*, and react-hook-form + zod.',
     },
     desktop: {
       tech: 'Vite 8 · Electron',
-      react: 'React 19 + React Router 8',
-      platforms: 'macOS / Windows / Linux builds',
-      updater: 'electron-updater wired',
+      body: 'React 19 + Router 8, macOS / Windows / Linux builds, electron-updater wired.',
     },
     server: {
       tech: 'Hono · Node.js',
-      ai: 'Vercel AI SDK streaming',
-      db: 'Drizzle + LibSQL',
-      env: 'lazy env, zero secrets',
+      body: 'Vercel AI SDK streaming, Drizzle + LibSQL, lazy env, zero secrets.',
     },
   },
   shared: {
@@ -62,12 +60,6 @@ export const en = {
     db: {
       body: 'Drizzle schema, a createDb() factory, and committed migrations. The same tables back the API and the desktop app.',
     },
-  },
-  structure: {
-    heading: 'Every surface has a home',
-    body: 'Apps talk to packages through workspace protocols. Nothing is duplicated across the tree, and each app runs on its own port.',
-    dayZero: 'Day zero',
-    note: 'Runs with Node 22 and pnpm 9. The whole stack builds and tests with zero secrets: env keys are optional and validated lazily.',
   },
   tooling: {
     heading: 'The boring parts are already boring',
@@ -142,6 +134,7 @@ export const zh: Copy = {
     langToggle: '切换到英文',
     themeToDark: '切换到深色',
     themeToLight: '切换到浅色',
+    quickstart: '快速开始',
   },
   hero: {
     eyebrow: 'Monorepo 起手模板',
@@ -165,6 +158,9 @@ export const zh: Copy = {
     okLine: '{ms} ms 内返回 200，由本 Worker 处理',
   },
   quickstart: {
+    heading: '开箱即用',
+    body: '应用通过 workspace 协议使用 packages。目录树里没有重复代码，每个应用跑在自己的端口上。',
+    note: 'Node 22 与 pnpm 9 即可运行。整套技术栈零密钥即可构建和测试：环境变量全部可选，采用惰性校验。',
     copy: '复制',
     copied: '已复制',
     copyLabel: '复制命令：{cmd}',
@@ -173,21 +169,15 @@ export const zh: Copy = {
     heading: '三个应用，一次安装',
     landing: {
       tech: 'Next.js 16 · App Router',
-      tailwind: 'Tailwind v4',
-      hono: 'Hono 挂载在 /api/*',
-      forms: 'react-hook-form + zod',
+      body: '可直接上线的站点：Tailwind v4、Hono 挂载在 /api/*、react-hook-form + zod。',
     },
     desktop: {
       tech: 'Vite 8 · Electron',
-      react: 'React 19 + React Router 8',
-      platforms: 'macOS / Windows / Linux 构建',
-      updater: 'electron-updater 已接入',
+      body: 'React 19 + Router 8，产出 macOS / Windows / Linux 安装包，electron-updater 已接入。',
     },
     server: {
       tech: 'Hono · Node.js',
-      ai: 'Vercel AI SDK 流式输出',
-      db: 'Drizzle + LibSQL',
-      env: '惰性环境变量，零密钥',
+      body: 'Vercel AI SDK 流式输出、Drizzle + LibSQL、惰性环境变量，零密钥。',
     },
   },
   shared: {
@@ -197,12 +187,6 @@ export const zh: Copy = {
     db: {
       body: 'Drizzle schema、createDb() 工厂函数和已提交的迁移。同一套表支撑 API 与桌面应用。',
     },
-  },
-  structure: {
-    heading: '每个应用都有自己的位置',
-    body: '应用通过 workspace 协议使用 packages。目录树里没有重复代码，每个应用跑在自己的端口上。',
-    dayZero: '开箱即用',
-    note: 'Node 22 与 pnpm 9 即可运行。整套技术栈零密钥即可构建和测试：环境变量全部可选，采用惰性校验。',
   },
   tooling: {
     heading: '枯燥的部分已经做完',
