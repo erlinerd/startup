@@ -45,17 +45,17 @@ manual.
 
 Run from the repo root. Always use `pnpm`, never npm/yarn.
 
-| Task       | Command                                                  |
-| ---------- | -------------------------------------------------------- |
-| Install    | `pnpm install`                                           |
-| Dev (all)  | `pnpm dev`                                               |
-| Dev (one)  | `pnpm dev --filter <name>`                               |
-| Lint       | `pnpm lint`                                              |
-| Type check | `pnpm check-types`                                       |
+| Task       | Command                                                          |
+| ---------- | ---------------------------------------------------------------- |
+| Install    | `pnpm install`                                                   |
+| Dev (all)  | `pnpm dev`                                                       |
+| Dev (one)  | `pnpm dev --filter <name>`                                       |
+| Lint       | `pnpm lint`                                                      |
+| Type check | `pnpm check-types`                                               |
 | Test       | `pnpm test` (all five: ui, db, server, landing, desktop) |
-| Coverage   | `pnpm test:coverage` (enforces per-package thresholds)   |
-| Build all  | `pnpm build`                                             |
-| Format     | `pnpm format`                                            |
+| Coverage   | `pnpm test:coverage` (enforces per-package thresholds)           |
+| Build all  | `pnpm build`                                                     |
+| Format     | `pnpm format`                                                    |
 
 Workspace names: `landing`, `desktop`, `server`, `@repo/ui`, `@repo/db`,
 `@repo/typescript-config`.
