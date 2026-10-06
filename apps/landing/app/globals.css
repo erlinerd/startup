@@ -43,7 +43,7 @@ body {
   --paper: oklch(0.98 0.008 85);
   --ink: oklch(0.2 0.012 85);
   --graphite: oklch(0.46 0.012 85);
-  --vermilion: oklch(0.6 0.17 28);
+  --vermilion: oklch(0.53 0.17 28);
   --vermilion-soft: oklch(0.6 0.17 28 / 0.1);
   --rule: oklch(0.88 0.012 85);
   --card: oklch(1 0 0);
@@ -91,7 +91,7 @@ html[data-theme='light'] .landing {
   --paper: oklch(0.98 0.008 85);
   --ink: oklch(0.2 0.012 85);
   --graphite: oklch(0.46 0.012 85);
-  --vermilion: oklch(0.6 0.17 28);
+  --vermilion: oklch(0.53 0.17 28);
   --vermilion-soft: oklch(0.6 0.17 28 / 0.1);
   --rule: oklch(0.88 0.012 85);
   --card: oklch(1 0 0);
@@ -100,7 +100,11 @@ html[data-theme='light'] .landing {
   --slab-dim: oklch(0.78 0.02 85);
 }
 
-/* .landing .font-display stays as-is (inherited from above) */
+/* Tailwind only emits font-family utilities from @theme keys; next/font
+   exposes Fraunces as a runtime variable, so bridge it explicitly. */
+.landing .font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
 
 .landing .font-mono,
 .landing code,

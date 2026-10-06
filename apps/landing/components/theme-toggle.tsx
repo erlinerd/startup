@@ -15,7 +15,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggleTheme}
       aria-label={theme === 'dark' ? d.nav.themeToLight : d.nav.themeToDark}
-      className="flex h-9 w-9 items-center justify-center rounded-md transition-colors hover:bg-[var(--vermilion-soft)] active:scale-95"
+      className="flex h-10 w-10 items-center justify-center rounded-md transition-colors hover:bg-[var(--vermilion-soft)] active:scale-95"
       style={{ color: 'var(--graphite)' }}
     >
       {theme === 'dark' ? (

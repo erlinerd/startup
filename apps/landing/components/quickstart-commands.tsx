@@ -39,7 +39,7 @@ export function QuickstartCommands() {
           <button
             type="button"
             onClick={() => copy(cmd)}
-            className="shrink-0 rounded-md px-2.5 py-1 font-mono text-xs uppercase tracking-wider transition-colors"
+            className="shrink-0 rounded-md px-2.5 py-2 font-mono text-xs uppercase tracking-wider transition-colors"
             style={{
               color: copied === cmd ? 'var(--vermilion)' : 'var(--slab-dim)',
               border:

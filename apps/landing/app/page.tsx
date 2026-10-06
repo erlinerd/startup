@@ -107,7 +107,7 @@ export default function Home() {
             </span>
           </a>
           <div
-            className="hidden items-center gap-7 text-sm md:flex"
+            className="flex items-center gap-4 text-[0.8rem] md:gap-7 md:text-sm"
             style={{ color: 'var(--graphite)' }}
           >
             <a
@@ -134,7 +134,7 @@ export default function Home() {
               type="button"
               onClick={() => setLocale(zh ? 'en' : 'zh')}
               aria-label={d.nav.langToggle}
-              className="flex h-9 w-9 items-center justify-center rounded-md text-sm transition-colors hover:bg-[var(--vermilion-soft)] active:scale-95"
+              className="flex h-10 w-10 items-center justify-center rounded-md text-sm transition-colors hover:bg-[var(--vermilion-soft)] active:scale-95"
               style={{ color: 'var(--graphite)' }}
             >
               {zh ? 'EN' : '中'}
@@ -164,7 +164,12 @@ export default function Home() {
             >
               {d.hero.eyebrow}
             </p>
-            <h1 className="font-display text-[2.9rem] font-light leading-[1.08] tracking-[-0.02em] sm:text-6xl lg:text-[4.25rem]">
+            <h1
+              className={`font-display text-balance font-light leading-[1.08] tracking-[-0.02em] ${zh ? 'text-[2.4rem] sm:text-5xl lg:text-[3.6rem]' : 'text-[2.9rem] sm:text-6xl lg:text-[4.25rem]'}`}
+              // Chinese has no spaces, so browsers break mid-word ("网/站");
+              // keep-all restricts breaks to punctuation boundaries.
+              style={zh ? { wordBreak: 'keep-all' } : undefined}
+            >
               {d.hero.title}
               <br />
               <span
@@ -492,7 +497,7 @@ export default function Home() {
           style={{ borderColor: 'var(--rule)', background: 'var(--card)' }}
         >
           <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-0 py-14 sm:flex-row sm:items-center sm:py-16">
-            <h2 className="max-w-md font-display text-2xl font-light tracking-tight sm:text-3xl">
+            <h2 className="max-w-lg font-display text-2xl font-light tracking-tight sm:text-3xl">
               {d.cta.heading}
             </h2>
             <a

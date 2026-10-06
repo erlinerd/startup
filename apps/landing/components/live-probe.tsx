@@ -36,13 +36,15 @@ export function LiveProbe() {
       aria-live="polite"
     >
       <p
-        className="font-mono text-[0.8rem] sm:text-[0.85rem]"
+        className="overflow-x-auto font-mono text-[0.8rem] sm:text-[0.85rem]"
         style={{ color: 'var(--slab-dim)' }}
       >
         <span style={{ color: 'var(--vermilion)' }} aria-hidden>
           ${' '}
         </span>
-        <span className="probe-echo">
+        {/* Single line: the clip-path reveal assumes one row; wrapping
+            would leave the URL hidden behind inset(0 100% 0 0). */}
+        <span className="probe-echo whitespace-nowrap">
           GET https://starter.erlinerd.com/api/hello
         </span>
       </p>
