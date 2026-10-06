@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "startup-landing",
+  "main": ".open-next/worker.js",
+  // Set this to today's date
+  "compatibility_date": "2026-10-06",
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "workers_dev": true,
+  "observability": {
+    "enabled": true
+  },
+  "routes": [
+    { "pattern": "starter.erlinerd.com", "custom_domain": true }
+  ]
+}
