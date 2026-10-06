@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import { Fraunces, Inter } from 'next/font/google'
 import { Toaster } from 'sonner'
 import { LocaleProvider } from '../lib/locale'
-import { THEME_STORAGE_KEY } from '../lib/locale'
 // oxlint-disable-next-line import/no-unassigned-import -- CSS side-effect import
 import './globals.css'
 
@@ -94,7 +93,8 @@ export const metadata: Metadata = {
 }
 
 /** Applies a stored theme choice before first paint so there is no flash. */
-const themeInit = `try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t}}catch(e){}`
+const THEME_STORAGE_KEY = 'landing-theme'
+const themeInit = `try{var t=localStorage.getItem('${THEME_STORAGE_KEY}');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t}}catch(e){}`
 
 const jsonLd = {
   '@context': 'https://schema.org',
