@@ -7,6 +7,17 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    color-scheme: dark;
+  }
 }
 
 body {
@@ -18,7 +29,16 @@ body {
  * Anchored to the hand-drawn line-art mark (ink + vermilion seal): a paper
  * feel, warm ink (not pure black), and a single brush-stroke red. Scoped to
  * `.landing` so the shadcn defaults used by desktop/ui stay untouched.
+ * Dark mode inverts the same three roles (paper / ink / vermilion), so the
+ * editorial identity survives in both modes.
+ *
+ * Selector rule: every themed block must DESCEND to `.landing` because
+ * tokens are declared on `.landing` on body. An inherited value never beats
+ * a direct declaration on the same element. The media block is guarded so
+ * an explicit light choice wins over OS dark.
  */
+
+/* ── Light baseline ── */
 .landing {
   --paper: oklch(0.98 0.008 85);
   --ink: oklch(0.2 0.012 85);
@@ -26,28 +46,119 @@ body {
   --vermilion: oklch(0.6 0.17 28);
   --vermilion-soft: oklch(0.6 0.17 28 / 0.1);
   --rule: oklch(0.88 0.012 85);
+  --card: oklch(1 0 0);
+  --slab: oklch(0.2 0.012 85); /* code blocks: ink slab, paper text */
+  --slab-ink: oklch(0.96 0.008 85);
+  --slab-dim: oklch(0.78 0.02 85);
 
   background: var(--paper);
   color: var(--ink);
   font-feature-settings: 'kern', 'liga', 'calt';
 }
 
-.landing .font-display {
-  font-family: var(--font-display), Georgia, 'Times New Roman', serif;
+/* ── Auto-dark: prefers-color-scheme when no explicit choice ── */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) .landing {
+    --paper: oklch(0.17 0.012 85);
+    --ink: oklch(0.95 0.008 85);
+    --graphite: oklch(0.78 0.014 85);
+    --vermilion: oklch(0.72 0.17 28);
+    --vermilion-soft: oklch(0.72 0.17 28 / 0.14);
+    --rule: oklch(0.32 0.014 85);
+    --card: oklch(0.21 0.012 85);
+    --slab: oklch(0.13 0.012 85);
+    --slab-ink: oklch(0.93 0.008 85);
+    --slab-dim: oklch(0.78 0.02 85);
+  }
 }
 
+/* ── Explicit dark choice ── */
+html[data-theme='dark'] .landing {
+  --paper: oklch(0.17 0.012 85);
+  --ink: oklch(0.95 0.008 85);
+  --graphite: oklch(0.78 0.014 85);
+  --vermilion: oklch(0.72 0.17 28);
+  --vermilion-soft: oklch(0.72 0.17 28 / 0.14);
+  --rule: oklch(0.32 0.014 85);
+  --card: oklch(0.21 0.012 85);
+  --slab: oklch(0.13 0.012 85);
+  --slab-ink: oklch(0.93 0.008 85);
+  --slab-dim: oklch(0.78 0.02 85);
+}
+
+/* ── Explicit light choice ── */
+html[data-theme='light'] .landing {
+  --paper: oklch(0.98 0.008 85);
+  --ink: oklch(0.2 0.012 85);
+  --graphite: oklch(0.46 0.012 85);
+  --vermilion: oklch(0.6 0.17 28);
+  --vermilion-soft: oklch(0.6 0.17 28 / 0.1);
+  --rule: oklch(0.88 0.012 85);
+  --card: oklch(1 0 0);
+  --slab: oklch(0.2 0.012 85);
+  --slab-ink: oklch(0.96 0.008 85);
+  --slab-dim: oklch(0.78 0.02 85);
+}
+
+/* .landing .font-display stays as-is (inherited from above) */
+
+.landing .font-mono,
+.landing code,
+.landing pre {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+}
+
+/* Faint dot grid behind the hero — paper texture, not a blueprint. */
+.dot-field {
+  background-image: radial-gradient(var(--rule) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(to bottom, black 15%, transparent 90%);
+  mask-image: linear-gradient(to bottom, black 15%, transparent 90%);
+}
+
+/* Section entrances: CSS scroll-driven animations, no JS. */
 @media (prefers-reduced-motion: no-preference) {
-  .landing .seal-pop {
-    animation: seal-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  @supports (animation-timeline: view()) {
+    .rise {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+    @keyframes rise-in {
+      from {
+        opacity: 0;
+        transform: translateY(28px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   }
-  @keyframes seal-in {
+
+  /* The live probe types its request line, then the answer lands. */
+  .probe-echo {
+    animation: probe-type 0.9s steps(24) 0.2s both;
+  }
+  @keyframes probe-type {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  .probe-answer {
+    animation: probe-arrive 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes probe-arrive {
     from {
       opacity: 0;
-      transform: rotate(-24deg) scale(0.4);
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
-      transform: rotate(-10deg) scale(1);
+      transform: translateY(0);
     }
   }
 }

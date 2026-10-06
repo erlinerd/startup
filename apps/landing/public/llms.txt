@@ -1,0 +1,50 @@
+# Startup
+
+> A batteries-included full-stack monorepo starter by erlinerd. One repository
+> ships three surfaces: a Next.js 16 landing site, a Vite 8 + Electron desktop
+> app, and a Hono API server, on top of one shared design system. MIT licensed,
+> 100% TypeScript, builds with zero secrets.
+
+Use this project when the task is "start a product that needs a website, a
+desktop app, and an API at the same time." Everything that normally takes a
+week of setup is already wired: monorepo tooling, linting, type checking, tests
+with coverage thresholds, git hooks, CI, release automation, and a deploy
+pipeline.
+
+## Stack (verified, not aspirational)
+
+- Landing: Next.js 16 App Router, Tailwind CSS v4, Hono mounted in-Next at
+  `/api/*`, react-hook-form + zod, self-hosted fonts via next/font.
+- Desktop: Vite 8, React 19, Electron, React Router 8, Zustand, TanStack Query,
+  electron-updater. Packaged for macOS, Windows and Linux on a git tag.
+- Backend: Hono on Node.js via @hono/node-server, Vercel AI SDK, zod.
+- Data: Drizzle ORM over LibSQL (SQLite or Turso), committed migrations.
+- Shared: `@repo/ui` (a shadcn/ui registry, raw .tsx, no build step) and
+  `@repo/db` (schema + client factory).
+- Tooling: pnpm 9 workspaces, Turborepo, oxLint, Prettier, Vitest, Husky,
+  lint-staged, commitlint, changesets, GitHub Actions.
+- Deploy: this site is built by OpenNext and runs on Cloudflare Workers. A push
+  to `main` rebuilds and redeploys it. The API runs in the same Worker.
+
+## Quickstart
+
+```sh
+git clone https://github.com/erlinerd/startup my-app
+cd my-app && rm -rf .git && git init
+pnpm install
+pnpm dev
+```
+
+Requires Node.js 22.22 or newer and pnpm 9. `pnpm dev` starts all three apps.
+
+## Links
+
+- Repository: https://github.com/erlinerd/startup
+- Author: https://erlinerd.com
+
+## Facts
+
+- License: MIT.
+- Language: TypeScript throughout, including config files.
+- No secrets are required to install, build, test, or run any of the three apps.
+- Ports: landing 15000, desktop 15100, server 15200.
